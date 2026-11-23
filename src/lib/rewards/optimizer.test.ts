@@ -87,3 +87,70 @@ describe("optimizeRewards — category fallback (AC3)", () => {
     expect(result.best[0]).toMatchObject({ cardId: "cw-flat-two", rewardCents: 100 });
   });
 });
+
+describe("optimizeRewards — invalid amounts (AC4)", () => {
+  it.each([
+    ["zero", 0],
+    ["negative", -25],
+    ["NaN", Number.NaN],
+    ["Infinity", Number.POSITIVE_INFINITY],
+    ["above the $1,000,000 cap", 1_000_000.01],
+    ["less than half a cent", 0.004],
+  ])("rejects an amount that is %s", (_label, amount) => {
+    expect(optimizeRewards({ amount, category: "dining", walletCardIds: ALL_CARDS })).toEqual({
+      ok: false,
+      error: "INVALID_AMOUNT",
+    });
+  });
+
+  it("accepts exactly the $1,000,000 cap", () => {
+    const result = okResult({ amount: 1_000_000, category: "other", walletCardIds: ["cw-flat-two"] });
+    expect(result.best[0].rewardCents).toBe(2_000_000);
+  });
+});
+
+describe("optimizeRewards — wallet and category validation (AC5)", () => {
+  it("rejects an empty wallet", () => {
+    expect(optimizeRewards({ amount: 100, category: "dining", walletCardIds: [] })).toEqual({
+      ok: false,
+      error: "EMPTY_WALLET",
+    });
+  });
+
+  it("rejects a wallet containing a card that is not in the catalog", () => {
+    expect(
+      optimizeRewards({ amount: 100, category: "dining", walletCardIds: ["cw-flat-two", "not-a-card"] }),
+    ).toEqual({ ok: false, error: "UNKNOWN_CARD" });
+  });
+
+  it("rejects a category outside the allowlist", () => {
+    const input = { amount: 100, category: "fuel", walletCardIds: ALL_CARDS } as unknown as Parameters<
+      typeof optimizeRewards
+    >[0];
+    expect(optimizeRewards(input)).toEqual({ ok: false, error: "INVALID_CATEGORY" });
+  });
+});
+
+describe("optimizeRewards — ties and duplicates (AC6)", () => {
+  it("reports every card tied for the top reward", () => {
+    const result = okResult({
+      amount: 100,
+      category: "dining",
+      walletCardIds: ["cw-grocery-saver", "cw-flat-two"],
+    });
+
+    expect(result.isTie).toBe(true);
+    expect(result.best.map((c) => c.cardId)).toEqual(["cw-flat-two", "cw-grocery-saver"]);
+  });
+
+  it("counts a card listed twice in the wallet only once", () => {
+    const result = okResult({
+      amount: 100,
+      category: "dining",
+      walletCardIds: ["cw-flat-two", "cw-flat-two"],
+    });
+
+    expect(result.results).toHaveLength(1);
+    expect(result.isTie).toBe(false);
+  });
+});

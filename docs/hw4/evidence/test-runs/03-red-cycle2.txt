@@ -1,0 +1,438 @@
+# 2026-11-22 22:56:59 PST — npm test (RED cycle 2, before implementation)
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.1 /Users/shihaomiao/Desktop/NEU/Courses/Fall2026/AI Coding/Project3/cardwise_2
+
+ ❯ src/lib/rewards/parse-amount.test.ts (0 test)
+ ❯ src/lib/rewards/optimizer.test.ts (21 tests | 9 failed) 24ms
+   ❯ optimizeRewards — invalid amounts (AC4) (7)
+     × rejects an amount that is zero 5ms
+     × rejects an amount that is negative 1ms
+     × rejects an amount that is NaN 1ms
+     × rejects an amount that is Infinity 1ms
+     × rejects an amount that is above the $1,000,000 cap 1ms
+     × rejects an amount that is less than half a cent 1ms
+   ❯ optimizeRewards — wallet and category validation (AC5) (3)
+     × rejects an empty wallet 0ms
+     × rejects a wallet containing a card that is not in the catalog 0ms
+     × rejects a category outside the allowlist 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/rewards/parse-amount.test.ts [ src/lib/rewards/parse-amount.test.ts ]
+Error: Cannot find package '@/lib/rewards/parse-amount' imported from /Users/shihaomiao/Desktop/NEU/Courses/Fall2026/AI Coding/Project3/cardwise_2/src/lib/rewards/parse-amount.test.ts
+ ❯ src/lib/rewards/parse-amount.test.ts:2:1
+      1| import { describe, expect, it } from "vitest";
+      2| import { parseAmount } from "@/lib/rewards/parse-amount";
+       | ^
+      3|
+      4| describe("parseAmount (AC7)", () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is zero
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is less than half a cent
+AssertionError: expected { ok: true, …(3) } to deeply equal { ok: false, error: 'INVALID_AMOUNT' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_AMOUNT",
+-   "ok": false,
++   "best": [
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": 0,
++     },
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": 0,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": 0,
++     },
++   ],
++   "isTie": true,
++   "ok": true,
++   "results": [
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": 0,
++     },
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": 0,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": 0,
++     },
++   ],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:100:87
+     98|     ["less than half a cent", 0.004],
+     99|   ])("rejects an amount that is %s", (_label, amount) => {
+    100|     expect(optimizeRewards({ amount, category: "dining", walletCardIds…
+       |                                                                                       ^
+    101|       ok: false,
+    102|       error: "INVALID_AMOUNT",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is negative
+AssertionError: expected { ok: true, …(3) } to deeply equal { ok: false, error: 'INVALID_AMOUNT' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_AMOUNT",
+-   "ok": false,
++   "best": [
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": -50,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": -50,
++     },
++   ],
++   "isTie": true,
++   "ok": true,
++   "results": [
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": -50,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": -50,
++     },
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": -100,
++     },
++   ],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:100:87
+     98|     ["less than half a cent", 0.004],
+     99|   ])("rejects an amount that is %s", (_label, amount) => {
+    100|     expect(optimizeRewards({ amount, category: "dining", walletCardIds…
+       |                                                                                       ^
+    101|       ok: false,
+    102|       error: "INVALID_AMOUNT",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is NaN
+AssertionError: expected { ok: true, …(3) } to deeply equal { ok: false, error: 'INVALID_AMOUNT' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_AMOUNT",
+-   "ok": false,
++   "best": [],
++   "isTie": false,
++   "ok": true,
++   "results": [
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": NaN,
++     },
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": NaN,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": NaN,
++     },
++   ],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:100:87
+     98|     ["less than half a cent", 0.004],
+     99|   ])("rejects an amount that is %s", (_label, amount) => {
+    100|     expect(optimizeRewards({ amount, category: "dining", walletCardIds…
+       |                                                                                       ^
+    101|       ok: false,
+    102|       error: "INVALID_AMOUNT",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is Infinity
+AssertionError: expected { ok: true, …(3) } to deeply equal { ok: false, error: 'INVALID_AMOUNT' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_AMOUNT",
+-   "ok": false,
++   "best": [
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": Infinity,
++     },
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": Infinity,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": Infinity,
++     },
++   ],
++   "isTie": true,
++   "ok": true,
++   "results": [
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": Infinity,
++     },
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": Infinity,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": Infinity,
++     },
++   ],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:100:87
+     98|     ["less than half a cent", 0.004],
+     99|   ])("rejects an amount that is %s", (_label, amount) => {
+    100|     expect(optimizeRewards({ amount, category: "dining", walletCardIds…
+       |                                                                                       ^
+    101|       ok: false,
+    102|       error: "INVALID_AMOUNT",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is above the $1,000,000 cap
+AssertionError: expected { ok: true, …(3) } to deeply equal { ok: false, error: 'INVALID_AMOUNT' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_AMOUNT",
+-   "ok": false,
++   "best": [
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": 4000000,
++     },
++   ],
++   "isTie": false,
++   "ok": true,
++   "results": [
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 4,
++       "rewardCents": 4000000,
++     },
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": 2000000,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 2,
++       "rewardCents": 2000000,
++     },
++   ],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:100:87
+     98|     ["less than half a cent", 0.004],
+     99|   ])("rejects an amount that is %s", (_label, amount) => {
+    100|     expect(optimizeRewards({ amount, category: "dining", walletCardIds…
+       |                                                                                       ^
+    101|       ok: false,
+    102|       error: "INVALID_AMOUNT",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — wallet and category validation (AC5) > rejects an empty wallet
+AssertionError: expected { ok: true, results: [], …(2) } to deeply equal { ok: false, error: 'EMPTY_WALLET' }
+
+- Expected
++ Received
+
+  {
+-   "error": "EMPTY_WALLET",
+-   "ok": false,
++   "best": [],
++   "isTie": false,
++   "ok": true,
++   "results": [],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:114:85
+    112| describe("optimizeRewards — wallet and category validation (AC5)", () …
+    113|   it("rejects an empty wallet", () => {
+    114|     expect(optimizeRewards({ amount: 100, category: "dining", walletCa…
+       |                                                                                     ^
+    115|       ok: false,
+    116|       error: "EMPTY_WALLET",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — wallet and category validation (AC5) > rejects a wallet containing a card that is not in the catalog
+AssertionError: expected { ok: true, …(3) } to deeply equal { ok: false, error: 'UNKNOWN_CARD' }
+
+- Expected
++ Received
+
+  {
+-   "error": "UNKNOWN_CARD",
+-   "ok": false,
++   "best": [
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": 200,
++     },
++   ],
++   "isTie": false,
++   "ok": true,
++   "results": [
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": 200,
++     },
++   ],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:123:7
+    121|     expect(
+    122|       optimizeRewards({ amount: 100, category: "dining", walletCardIds…
+    123|     ).toEqual({ ok: false, error: "UNKNOWN_CARD" });
+       |       ^
+    124|   });
+    125|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  src/lib/rewards/optimizer.test.ts > optimizeRewards — wallet and category validation (AC5) > rejects a category outside the allowlist
+AssertionError: expected { ok: true, …(3) } to deeply equal { Object (ok, error) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CATEGORY",
+-   "ok": false,
++   "best": [
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": 200,
++     },
++   ],
++   "isTie": false,
++   "ok": true,
++   "results": [
++     {
++       "cardId": "cw-flat-two",
++       "cardName": "Flat Two",
++       "ratePercent": 2,
++       "rewardCents": 200,
++     },
++     {
++       "cardId": "cw-dining-plus",
++       "cardName": "Dining Plus",
++       "ratePercent": 1,
++       "rewardCents": 100,
++     },
++     {
++       "cardId": "cw-grocery-saver",
++       "cardName": "Grocery Saver",
++       "ratePercent": 1,
++       "rewardCents": 100,
++     },
++   ],
+  }
+
+ ❯ src/lib/rewards/optimizer.test.ts:130:36
+    128|       typeof optimizeRewards
+    129|     >[0];
+    130|     expect(optimizeRewards(input)).toEqual({ ok: false, error: "INVALI…
+       |                                    ^
+    131|   });
+    132| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  9 failed | 12 passed (21)
+   Start at  22:57:00
+   Duration  209ms (tests 39%, transform 38%, import 15%, worker 8%)
+
+exit code: 1
