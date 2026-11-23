@@ -1,4 +1,6 @@
-export type SpendCategory = "dining" | "groceries" | "travel" | "other";
+export const SPEND_CATEGORIES = ["dining", "groceries", "travel", "other"] as const;
+
+export type SpendCategory = (typeof SPEND_CATEGORIES)[number];
 
 export type CardProduct = {
   id: string;

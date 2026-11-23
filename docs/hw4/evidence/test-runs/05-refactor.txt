@@ -1,0 +1,14 @@
+# 2026-11-22 22:58:05 PST — npm test (REFACTOR, tests unchanged)
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.1 /Users/shihaomiao/Desktop/NEU/Courses/Fall2026/AI Coding/Project3/cardwise_2
+
+
+ Test Files  2 passed (2)
+      Tests  39 passed (39)
+   Start at  22:58:05
+   Duration  203ms (transform 44%, tests 27%, import 23%, worker 6%)
+
+exit code: 0
