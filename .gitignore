@@ -11,3 +11,6 @@ test-results/
 # Next.js / TypeScript build output
 next-env.d.ts
 *.tsbuildinfo
+
+# Personal Claude Code overrides
+.claude/settings.local.json
