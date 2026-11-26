@@ -1,0 +1,46 @@
+# Issue #6 — Cycle 1 GREEN evidence
+# Captured: 2026-11-25 21:40 on branch feat/6-cpp-calculator, node v22.20.0
+# Expected: all tests pass, including calculateCpp 1.1–1.8; typecheck clean.
+
+## npm test (exit 0)
+
+> cardwise@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+
+ Test Files  3 passed (3)
+      Tests  47 passed (47)
+   Start at  21:40:04
+   Duration  444ms (transform 47%, import 28%, tests 15%, worker 10%)
+
+
+## npx vitest run src/lib/cpp --reporter=verbose
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.1 computes CPP as (cash − fees) / points × 100 3ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.2 allows zero taxes/fees 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.3 rounds CPP down to 2 decimals (333.33 hundredths → 3.33) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.4 rounds CPP up to 2 decimals (666.67 hundredths → 6.67) 1ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.5 rounds an exact half up (12.5 hundredths → 0.13) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.6 subtracts fees in integer cents, not float dollars 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.7 rounds a CPP below 0.005 to 0 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.8 keeps maximum values as exact safe integers 0ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  21:40:56
+   Duration  302ms (import 41%, transform 27%, worker 18%, tests 13%)
+
+
+## npm run typecheck (exit 0)
+
+> cardwise@0.1.0 typecheck
+> tsc --noEmit
+
