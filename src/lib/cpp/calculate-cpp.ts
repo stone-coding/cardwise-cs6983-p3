@@ -1,5 +1,5 @@
 import { toCents, toNonNegativeCents } from "@/lib/money";
-import type { CppInput, CppResult } from "./types";
+import type { CppInput, CppResult, CppVerdict } from "./types";
 
 export const MAX_POINTS = 10_000_000;
 export const MAX_BASELINE_CPP = 100;
@@ -30,11 +30,12 @@ export function calculateCpp(input: CppInput): CppResult {
   const cpp = cppHundredths / 100;
   if (baselineHundredths === null) return { ok: true, netCashCents, cpp };
 
-  const verdict =
-    cppHundredths > baselineHundredths
-      ? "POINTS_BETTER"
-      : cppHundredths < baselineHundredths
-        ? "CASH_BETTER"
-        : "EQUAL";
-  return { ok: true, netCashCents, cpp, verdict };
+  return { ok: true, netCashCents, cpp, verdict: verdictFor(cppHundredths, baselineHundredths) };
+}
+
+/** Compares CPP to the baseline, both in integer hundredths of a cent, so no floats are compared. */
+function verdictFor(cppHundredths: number, baselineHundredths: number): CppVerdict {
+  if (cppHundredths > baselineHundredths) return "POINTS_BETTER";
+  if (cppHundredths < baselineHundredths) return "CASH_BETTER";
+  return "EQUAL";
 }
