@@ -1,13 +1,7 @@
-import { MAX_AMOUNT_DOLLARS, toCents } from "@/lib/rewards/optimizer";
+import { toCents, toNonNegativeCents } from "@/lib/money";
 import type { CppInput, CppResult } from "./types";
 
 export const MAX_POINTS = 10_000_000;
-
-/** Like toCents, but allows 0: returns whole cents for amounts in [0, MAX_AMOUNT_DOLLARS], else null. */
-function toNonNegativeCents(amount: number): number | null {
-  if (!Number.isFinite(amount) || amount < 0 || amount > MAX_AMOUNT_DOLLARS) return null;
-  return Math.round(amount * 100);
-}
 
 function isValidPoints(points: number): boolean {
   return Number.isInteger(points) && points > 0 && points <= MAX_POINTS;
