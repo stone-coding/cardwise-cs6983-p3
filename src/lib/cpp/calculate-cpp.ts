@@ -2,6 +2,7 @@ import { toCents, toNonNegativeCents } from "@/lib/money";
 import type { CppInput, CppResult } from "./types";
 
 export const MAX_POINTS = 10_000_000;
+export const MAX_BASELINE_CPP = 100;
 
 function isValidPoints(points: number): boolean {
   return Number.isInteger(points) && points > 0 && points <= MAX_POINTS;
@@ -15,7 +16,25 @@ export function calculateCpp(input: CppInput): CppResult {
   if (!isValidPoints(input.pointsRequired)) return { ok: false, error: "INVALID_POINTS" };
   if (feesCents >= cashCents) return { ok: false, error: "FEES_EXCEED_CASH" };
 
+  const baseline = input.baselineCpp;
+  const baselineHundredths = baseline === undefined ? null : Math.round(baseline * 100);
+  if (
+    baseline !== undefined &&
+    (!Number.isFinite(baseline) || baseline > MAX_BASELINE_CPP || (baselineHundredths ?? 0) < 1)
+  ) {
+    return { ok: false, error: "INVALID_BASELINE" };
+  }
+
   const netCashCents = cashCents - feesCents;
   const cppHundredths = Math.round((netCashCents * 100) / input.pointsRequired);
-  return { ok: true, netCashCents, cpp: cppHundredths / 100 };
+  const cpp = cppHundredths / 100;
+  if (baselineHundredths === null) return { ok: true, netCashCents, cpp };
+
+  const verdict =
+    cppHundredths > baselineHundredths
+      ? "POINTS_BETTER"
+      : cppHundredths < baselineHundredths
+        ? "CASH_BETTER"
+        : "EQUAL";
+  return { ok: true, netCashCents, cpp, verdict };
 }
