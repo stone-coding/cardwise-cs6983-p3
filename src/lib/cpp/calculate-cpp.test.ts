@@ -164,3 +164,106 @@ describe("calculateCpp — input validation (cycle 2)", () => {
     });
   });
 });
+
+/** cpp 1.5 */
+const BASE_A = { cashPrice: 500, taxesFees: 50, pointsRequired: 30000 };
+/** cpp 3.33 */
+const BASE_B = { cashPrice: 100, taxesFees: 0, pointsRequired: 3000 };
+/** cpp 0 */
+const BASE_C = { cashPrice: 1, taxesFees: 0, pointsRequired: 1000000 };
+
+describe("calculateCpp — baseline verdict (cycle 3)", () => {
+  it("3.1 omits the verdict when no baseline is given", () => {
+    const result = calculateCpp(BASE_A);
+
+    expect(result).toEqual({ ok: true, netCashCents: 45000, cpp: 1.5 });
+    expect(result).not.toHaveProperty("verdict");
+  });
+
+  it("3.2 says POINTS_BETTER when CPP beats the baseline", () => {
+    expect(calculateCpp({ ...BASE_A, baselineCpp: 1.2 })).toEqual({
+      ok: true,
+      netCashCents: 45000,
+      cpp: 1.5,
+      verdict: "POINTS_BETTER",
+    });
+  });
+
+  it("3.3 says CASH_BETTER when CPP is below the baseline", () => {
+    expect(calculateCpp({ ...BASE_A, baselineCpp: 2 })).toEqual({
+      ok: true,
+      netCashCents: 45000,
+      cpp: 1.5,
+      verdict: "CASH_BETTER",
+    });
+  });
+
+  it("3.4 says EQUAL when CPP matches the baseline exactly", () => {
+    expect(calculateCpp({ ...BASE_A, baselineCpp: 1.5 })).toEqual({
+      ok: true,
+      netCashCents: 45000,
+      cpp: 1.5,
+      verdict: "EQUAL",
+    });
+  });
+
+  it.each([
+    ["3.5", 3.334, "EQUAL"],
+    ["3.6", 3.326, "EQUAL"],
+    ["3.7", 3.336, "CASH_BETTER"],
+    ["3.8", 3.324, "POINTS_BETTER"],
+  ])("%s compares at 2 decimals: cpp 3.33 vs baseline %s → %s", (_id, baselineCpp, verdict) => {
+    expect(calculateCpp({ ...BASE_B, baselineCpp })).toEqual({
+      ok: true,
+      netCashCents: 10000,
+      cpp: 3.33,
+      verdict,
+    });
+  });
+
+  it("3.9 accepts the maximum baseline of 100", () => {
+    expect(calculateCpp({ ...BASE_A, baselineCpp: 100 })).toEqual({
+      ok: true,
+      netCashCents: 45000,
+      cpp: 1.5,
+      verdict: "CASH_BETTER",
+    });
+  });
+
+  it("3.10 accepts the minimum baseline of 0.01", () => {
+    expect(calculateCpp({ ...BASE_A, baselineCpp: 0.01 })).toEqual({
+      ok: true,
+      netCashCents: 45000,
+      cpp: 1.5,
+      verdict: "POINTS_BETTER",
+    });
+  });
+
+  it("3.11 says CASH_BETTER when CPP rounds to 0 and the baseline is 0.01", () => {
+    expect(calculateCpp({ ...BASE_C, baselineCpp: 0.01 })).toEqual({
+      ok: true,
+      netCashCents: 100,
+      cpp: 0,
+      verdict: "CASH_BETTER",
+    });
+  });
+
+  it.each([
+    ["0", 0],
+    ["negative", -1],
+    ["NaN", NaN],
+    ["Infinity", Infinity],
+    ["over the 100 cap", 100.01],
+    ["0.004 (rounds to 0.00)", 0.004],
+    ["a non-numeric string", "1" as unknown as number],
+  ])("3.12 rejects baselineCpp = %s with INVALID_BASELINE", (_label, baselineCpp) => {
+    expect(calculateCpp({ ...BASE_A, baselineCpp })).toEqual({ ok: false, error: "INVALID_BASELINE" });
+  });
+
+  it("3.13 reports invalid points before an invalid baseline", () => {
+    expect(calculateCpp({ ...BASE_A, pointsRequired: 0, baselineCpp: -1 })).toEqual({
+      ok: false,
+      error: "INVALID_POINTS",
+    });
+  });
+});
