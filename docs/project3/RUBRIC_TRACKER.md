@@ -11,7 +11,7 @@
 
 **Rule:** a row moves to VERIFIED only when the "Actual evidence" column links to a real commit, CI run, PR, deployment, or screenshot.
 
-_Last updated: 2026-11-25 (planning baseline)._
+_Last updated: 2026-11-25 (planning baseline; HW5 separated as individual coursework, so it is not tracked here)._
 
 ## A. Application Quality — 40 pts
 Excellent: production-ready, deployed on Vercel, polished UI, 2+ user roles, real problem solved, portfolio-worthy.
@@ -37,13 +37,13 @@ Excellent: rich CLAUDE.md with @imports and git evolution; 2+ iterated skills wi
 | CLAUDE.md comprehensive, with @imports | #18 | 1–2 | Both | `CLAUDE.md` | IN PROGRESS | `CLAUDE.md` (imports `@docs/MVP_SCOPE.md`, `@docs/PROJECT_PROPOSAL.md`, `@docs/project3/DEFINITION_OF_DONE.md`) |
 | CLAUDE.md evolution visible in git | #18 | 1–2 | Both | `git log -p CLAUDE.md` with ≥3 meaningful revisions | IN PROGRESS | `d742903` (/init) → `7264456` (iteration) → P3 planning commit |
 | Auto-memory usage | #18 | 1–2 | Both | Memory files / `/memory` screenshots from real sessions | REQUIRES HUMAN ACTION | |
-| ≥2 skills in `.claude/skills/` | #8, #9 | 1 | Haomiao / Togzhan | SKILL.md files | PLANNED | |
+| ≥2 skills in `.claude/skills/` (`/add-feature`, `/review-pr`) | #8, #9 | 1 | Haomiao / Togzhan | SKILL.md files | PLANNED | |
 | Skills iterated v1 → v2 (target: both skills) | #8, #9 | 1 | Haomiao / Togzhan | v1 and v2 commits + change rationale | PLANNED | |
 | Skill usage evidence from both partners | #8, #9 | 1–2 | Both | Session logs/screenshots on real tasks | PLANNED | |
 | ≥2 hooks in `.claude/settings.json` | #12 | 1 | Haomiao (+ Togzhan) | settings.json + hook scripts | PLANNED | |
 | ≥1 PreToolUse/PostToolUse hook | #12 | 1 | Haomiao | Session showing it fire | PLANNED | |
 | ≥1 quality-enforcement hook (Stop → tests) | #12 | 1 | Togzhan | Session showing it fire | PLANNED | |
-| MCP server via shared `.mcp.json` | #10 | 1 | Both | `.mcp.json` committed | PLANNED | |
+| MCP server via shared `.mcp.json` (GitHub MCP, Playwright MCP) | #10 | 1 | Haomiao / Togzhan | `.mcp.json` committed | PLANNED | |
 | MCP used in the real workflow | #10 | 1 | Both | Session log/screenshots | PLANNED | |
 | Custom sub-agent(s) in `.claude/agents/` with execution evidence | #13 | 1 | Togzhan | Agent files + output on real PRs | PLANNED | |
 | ≥2 features developed in parallel in worktrees | #7 | 1 | Togzhan (+ Haomiao) | `git worktree list`, overlapping branch history | PLANNED | |

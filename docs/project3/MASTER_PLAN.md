@@ -7,7 +7,7 @@
 | Repository | https://github.com/stone-coding/cardwise-cs6983-p3 |
 | Team | Haomiao Shi, Togzhan Usseiin (pair arrangement must be confirmed by the professor; see §8) |
 | Backlog | [Issues #1–#31](https://github.com/stone-coding/cardwise-cs6983-p3/issues) · [Sprint 1 milestone](https://github.com/stone-coding/cardwise-cs6983-p3/milestone/1) · [Sprint 2 milestone](https://github.com/stone-coding/cardwise-cs6983-p3/milestone/2) |
-| Source of truth | `docs/assignments/PROJECT3.md` (200 pts), `docs/assignments/HW5.md` (50 pts) |
+| Source of truth | `docs/assignments/PROJECT3.md` (200 pts). HW5 is **individual** coursework, tracked outside this plan (§1). |
 | Related docs | [RUBRIC_TRACKER](RUBRIC_TRACKER.md) · [TEAM_RESPONSIBILITIES](TEAM_RESPONSIBILITIES.md) · [DEFINITION_OF_DONE](DEFINITION_OF_DONE.md) · [EVIDENCE_INDEX](EVIDENCE_INDEX.md) · [FINAL_SUBMISSION_CHECKLIST](FINAL_SUBMISSION_CHECKLIST.md) |
 
 ## 1. Hard deadlines (from `docs/assignments/`)
@@ -15,7 +15,7 @@
 | Deadline | Date/time | Notes |
 |---|---|---|
 | Professor approval in #projects | **No later than 2026-12-09 02:59** | "At least one week before the deadline" means 7 days before Dec 16 02:59. Aim for **2026-11-27**. |
-| HW5 | **2026-12-07 02:59** | Internal target: 2026-12-05. Ask the instructor whether HW5 is submitted individually or as a pair. |
+| HW5 (individual, not part of P3 tracking) | **2026-12-07 02:59** | Each partner completes and submits their own HW5 (suggested internal target 2026-12-05). Reminder: issue #11 (no milestone). Individual HW5 evidence, session logs, screenshots, and retrospectives stay **outside this repository**, and each partner manages them independently. Only the shared skills (`.claude/skills/`) and `.mcp.json` live here, serving P3 issues #8–#10. |
 | Project 3 | **2026-12-16 02:59** | The Canvas header also says "Finals Week Dec 14–20". Treat **Dec 16 02:59** as binding. Internal feature freeze 2026-12-13; final submission target 2026-12-15 12:00. |
 
 ## 2. Frozen product scope: exactly five modules
@@ -43,9 +43,9 @@ The following is supporting platform work, not extra modules:
 
 ### Sprint 1 — Foundation & Core Features (2026-11-25 → 2026-12-06)
 
-**Goal:** Establish the production foundation, finish Modules 1–3, finish HW5, and set up the Claude Code workflow.
+**Goal:** Establish the production foundation, finish Modules 1–3, and set up the shared Claude Code tooling (skills, MCP, hooks, sub-agents) and workflow.
 
-- **Issues:** #1–#18
+- **Issues:** #1–#10, #12–#18 (17 issues; #11 is an individual HW5 reminder outside the milestone)
 - **Ceremonies:**
   - Planning: 11-25
   - Async standups: 11-27, 11-30, 12-03
@@ -53,7 +53,7 @@ The following is supporting platform work, not extra modules:
 - **Exit criteria:**
   - Modules 1–3 merged with TDD history
   - Auth + DB working on a preview deploy
-  - HW5 submitted
+  - Skills `/add-feature` and `/review-pr` (v1) plus `.mcp.json` (GitHub + Playwright MCP) committed and used on real tasks
   - ≥1 writer/reviewer PR completed
   - CI stages 1, 2, 3, 5 green
 
@@ -87,7 +87,7 @@ Details per criterion are in [RUBRIC_TRACKER.md](RUBRIC_TRACKER.md).
 | Category | Pts | Issues |
 |---|---|---|
 | Application Quality | 40 | #2 #3 #4 #5 #6 #20 #21 #22 #26 #27 |
-| Claude Code Mastery | 55 | #7 #8 #9 #10 #12 #13 #14 #18 |
+| Claude Code Mastery | 55 | #7 #8 (`/add-feature`) #9 (`/review-pr`) #10 (GitHub + Playwright MCP) #12 #13 #14 #18 |
 | Testing & TDD | 30 | #4 #5 #6 #20 #21 #23 #24 (#31 bonus) |
 | CI/CD & Production | 35 | #15 #16 #17 #23 #24 #25 #26 (#13 SAST agent) |
 | Pair Process | 25 | #1 #19 #14 (+ every PR) |
@@ -104,8 +104,8 @@ GitHub Issue
   → GREEN commit:    feat(<scope>): … (GREEN)    — minimum code to pass
   → REFACTOR commit: refactor(<scope>): …        — tests unchanged and green
   → npm test / typecheck / lint locally (Stop hook enforces tests)
-  → PR from template (/create-pr skill): writer agent recorded
-  → Reviewer agents: clear-reviewer + security-reviewer
+  → PR from template: writer agent/session recorded
+  → Reviewer: /review-pr skill + clear-reviewer / security-reviewer sub-agents
   → Human partner review (C.L.E.A.R. comments, approval)
   → CI green (all configured stages)
   → Vercel preview checked
@@ -136,7 +136,7 @@ GitHub Issue
 1. **Professor approval and pair confirmation:** everything else depends on these.
 2. Togzhan's GitHub access, then branch protection and partner PR reviews (#14).
 3. #2 DB → #3 Auth → #4 Wallet. Persistent data and roles block Modules 4–5, admin, integration tests, and E2E.
-4. #8/#9/#10 → #11 HW5 by **12-07 02:59**.
+4. #8/#9/#10 shared skills + MCP early in Sprint 1, since #14 PR reviews and #24 E2E build on them.
 5. #15 CI → #17 preview → #24 E2E + #25 AI review → #26 production with all 8 stages green.
 6. #26 → #28 README → #30 video, reflections, and showcase.
 
@@ -148,7 +148,7 @@ GitHub Issue
 | Professor confirms new pair arrangement | Both | ASAP | Grading as a pair; contribution balance |
 | Togzhan's GitHub username; add as collaborator (Write) | Togzhan → Haomiao | 11-26 | #14, assignments, branch protection |
 | Team approves sprint dates and owners | Both | 11-25 meeting | All assignments |
-| Ask whether HW5 is individual or pair | Both | 11-27 | #11 |
+| Individual HW5 submissions (own skill, MCP demo, evidence, retrospective) | Each partner | 12-07 02:59 | Not a P3 dependency (#11 reminder) |
 | Supply the course definition of C.L.E.A.R. (W12 materials) | Either | Before first PR | #13, #14, PR template |
 | Neon (or other Postgres) account; preview and prod databases | Haomiao | 11-28 | #2, #17 |
 | Vercel account/project linked to repo; env vars | Haomiao | 11-30 | #17, #26 |
@@ -170,7 +170,7 @@ GitHub Issue
 | Squash merges erase TDD history | Lose Testing points | Merge-commit policy (§6); confirm in repo settings |
 | Short Sprint 2 (9 days) with all CI/CD and deliverables | Missed stages or video | Pull CI stages 1–3 and 5 plus preview into Sprint 1; feature freeze 12-13 |
 | AI review / deploy secrets unavailable | Stages 6–8 not green | Request keys in Sprint 1; fall back to `claude -p` with a personal key |
-| HW5 deadline collides with Sprint 1 feature work | HW5 quality | Build skills while doing #5/#6, so the real tasks double as skill tests |
+| Individual HW5 deadline (12-07) competes with Sprint 1 time | Sprint 1 slips | Each partner's HW5 skill and MCP are the same assets P3 needs (#8–#10), so building them on real Sprint 1 tasks serves both, while HW5 evidence stays in individual folders |
 | Undefined C.L.E.A.R. expansion | Reviews don't match course rubric | Get the definition from course materials before the first PR |
 | Catalog accuracy (real card names) | Misleading info | As-of dates, "estimate" labels, simplified-rules disclaimer, team decision on real vs fictional names |
 

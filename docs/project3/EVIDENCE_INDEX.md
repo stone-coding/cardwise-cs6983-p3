@@ -22,9 +22,9 @@ A single place to find every grading artifact. Each row links directly to real e
 | `/init` baseline output | [`docs/hw4/evidence/CLAUDE.init-output.md`](../hw4/evidence/CLAUDE.init-output.md) | Exists (HW4, Haomiao) |
 | Permissions | [`.claude/settings.json`](../../.claude/settings.json) | Exists |
 | Auto-memory evidence | `docs/project3/evidence/claude-md-memory.md` | _pending (#18)_ |
-| Skills v1 → v2 + usage | `.claude/skills/`, `docs/project3/evidence/skills.md` | _pending (#8, #9)_ |
+| Skills v1 → v2 + usage (`/add-feature`, `/review-pr`) | `.claude/skills/`, `docs/project3/evidence/skills.md` | _pending (#8, #9)_ |
 | Hooks + firing evidence | `.claude/settings.json`, `.claude/hooks/`, `docs/project3/evidence/hooks.md` | _pending (#12)_ |
-| MCP config + usage | `.mcp.json`, `docs/hw5/MCP_SETUP.md` | _pending (#10)_ |
+| MCP config + usage (GitHub, Playwright) | `.mcp.json`, `docs/project3/evidence/mcp.md` | _pending (#10)_ |
 | Sub-agents + output | `.claude/agents/`, `docs/project3/evidence/agents.md` | _pending (#13)_ |
 | Worktree parallel development | `docs/project3/evidence/worktrees.md` | _pending (#7)_ |
 | Writer/reviewer PRs with C.L.E.A.R. + AI disclosure | PR links | _pending (#14)_ |

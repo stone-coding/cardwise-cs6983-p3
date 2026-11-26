@@ -32,7 +32,7 @@ Closes #
 - Security-reviewer agent / SAST output: <!-- link -->
 
 ## Writer / reviewer agents
-- **Writer:** <!-- e.g. Claude Code session by @author using /tdd-feature -->
+- **Writer:** <!-- e.g. Claude Code session by @author using /add-feature -->
 - **Reviewer agent(s):** <!-- e.g. clear-reviewer, security-reviewer: link to comment/output -->
 - **Human partner reviewer:** @
 
