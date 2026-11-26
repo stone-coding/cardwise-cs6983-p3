@@ -1,0 +1,699 @@
+# Issue #6 — Cycle 2 RED evidence
+# Captured: 2026-11-25 21:44 on branch feat/6-cpp-calculator, node v22.20.0
+# Expected: 25 new validation tests fail (calculate-cpp.ts has no validation yet); boundary tests 2.9–2.11 and all earlier tests pass; typecheck clean.
+
+## npx vitest run src/lib/cpp --reporter=verbose (per-test summary)
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.1 computes CPP as (cash − fees) / points × 100 3ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.2 allows zero taxes/fees 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.3 rounds CPP down to 2 decimals (333.33 hundredths → 3.33) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.4 rounds CPP up to 2 decimals (666.67 hundredths → 6.67) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.5 rounds an exact half up (12.5 hundredths → 0.13) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.6 subtracts fees in integer cents, not float dollars 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.7 rounds a CPP below 0.005 to 0 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.8 keeps maximum values as exact safe integers 0ms
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0 with INVALID_CASH_PRICE 9ms
+   → expected { ok: true, netCashCents: -5000, …(1) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = negative with INVALID_CASH_PRICE 2ms
+   → expected { ok: true, netCashCents: -5100, …(1) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = NaN with INVALID_CASH_PRICE 1ms
+   → expected { ok: true, netCashCents: NaN, …(1) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = Infinity with INVALID_CASH_PRICE 1ms
+   → expected { ok: true, …(2) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = -Infinity with INVALID_CASH_PRICE 1ms
+   → expected { ok: true, …(2) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = over the $1,000,000 cap with INVALID_CASH_PRICE 1ms
+   → expected { ok: true, …(2) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0.004 (rounds to 0 cents) with INVALID_CASH_PRICE 1ms
+   → expected { ok: true, netCashCents: -5000, …(1) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = a non-numeric string with INVALID_CASH_PRICE 1ms
+   → expected { ok: true, netCashCents: 5000, …(1) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = negative with INVALID_FEES 2ms
+   → expected { ok: true, netCashCents: 50001, …(1) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = NaN with INVALID_FEES 1ms
+   → expected { ok: true, netCashCents: NaN, …(1) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = Infinity with INVALID_FEES 0ms
+   → expected { ok: true, …(2) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = over the $1,000,000 cap with INVALID_FEES 0ms
+   → expected { ok: true, …(2) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = a non-numeric string with INVALID_FEES 1ms
+   → expected { ok: true, netCashCents: 49500, …(1) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = 0 with INVALID_POINTS 1ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = negative with INVALID_POINTS 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a fraction (1.5) with INVALID_POINTS 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = NaN with INVALID_POINTS 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = Infinity with INVALID_POINTS 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = over the 10,000,000 cap with INVALID_POINTS 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a non-numeric string with INVALID_POINTS 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.4 rejects fees equal to the cash price with FEES_EXCEED_CASH 0ms
+   → expected { ok: true, netCashCents: +0, cpp: +0 } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.5 rejects fees greater than the cash price with FEES_EXCEED_CASH 0ms
+   → expected { ok: true, netCashCents: -1, cpp: -0 } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.6 compares cash and fees in cents (99.999 rounds to 10000 cents = cash) 1ms
+   → expected { ok: true, netCashCents: +0, cpp: +0 } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.7 reports the cash price error first when several fields are invalid 1ms
+   → expected { ok: true, netCashCents: 100, …(1) } to deeply equal { ok: false, …(1) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.8 checks each field before comparing fees to cash 0ms
+   → expected { Object (ok, netCashCents, ...) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.9 accepts the 10,000,000 points maximum 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.10 accepts a net cash value of 1 cent 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.11 accepts fees that round to 0 cents 0ms
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+ ❯ src/lib/cpp/calculate-cpp.test.ts:109:84
+ ❯ src/lib/cpp/calculate-cpp.test.ts:116:87
+ ❯ src/lib/cpp/calculate-cpp.test.ts:123:87
+ ❯ src/lib/cpp/calculate-cpp.test.ts:130:78
+ ❯ src/lib/cpp/calculate-cpp.test.ts:137:81
+⎯⎯⎯⎯⎯⎯ Failed Tests 25 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  25 failed | 11 passed (36)
+
+## npm test (exit 1, full output)
+
+> cardwise@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts (36 tests | 25 failed) 41ms
+   ❯ calculateCpp — input validation (cycle 2) (28)
+     × 2.1 rejects cashPrice = 0 with INVALID_CASH_PRICE 11ms
+     × 2.1 rejects cashPrice = negative with INVALID_CASH_PRICE 2ms
+     × 2.1 rejects cashPrice = NaN with INVALID_CASH_PRICE 2ms
+     × 2.1 rejects cashPrice = Infinity with INVALID_CASH_PRICE 1ms
+     × 2.1 rejects cashPrice = -Infinity with INVALID_CASH_PRICE 1ms
+     × 2.1 rejects cashPrice = over the $1,000,000 cap with INVALID_CASH_PRICE 1ms
+     × 2.1 rejects cashPrice = 0.004 (rounds to 0 cents) with INVALID_CASH_PRICE 1ms
+     × 2.1 rejects cashPrice = a non-numeric string with INVALID_CASH_PRICE 1ms
+     × 2.2 rejects taxesFees = negative with INVALID_FEES 3ms
+     × 2.2 rejects taxesFees = NaN with INVALID_FEES 1ms
+     × 2.2 rejects taxesFees = Infinity with INVALID_FEES 1ms
+     × 2.2 rejects taxesFees = over the $1,000,000 cap with INVALID_FEES 1ms
+     × 2.2 rejects taxesFees = a non-numeric string with INVALID_FEES 0ms
+     × 2.3 rejects pointsRequired = 0 with INVALID_POINTS 1ms
+     × 2.3 rejects pointsRequired = negative with INVALID_POINTS 0ms
+     × 2.3 rejects pointsRequired = a fraction (1.5) with INVALID_POINTS 0ms
+     × 2.3 rejects pointsRequired = NaN with INVALID_POINTS 0ms
+     × 2.3 rejects pointsRequired = Infinity with INVALID_POINTS 0ms
+     × 2.3 rejects pointsRequired = over the 10,000,000 cap with INVALID_POINTS 1ms
+     × 2.3 rejects pointsRequired = a non-numeric string with INVALID_POINTS 1ms
+     × 2.4 rejects fees equal to the cash price with FEES_EXCEED_CASH 1ms
+     × 2.5 rejects fees greater than the cash price with FEES_EXCEED_CASH 1ms
+     × 2.6 compares cash and fees in cents (99.999 rounds to 10000 cents = cash) 1ms
+     × 2.7 reports the cash price error first when several fields are invalid 1ms
+     × 2.8 checks each field before comparing fees to cash 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 25 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0 with INVALID_CASH_PRICE
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0.004 (rounds to 0 cents) with INVALID_CASH_PRICE
+AssertionError: expected { ok: true, netCashCents: -5000, …(1) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": -0.17,
++   "netCashCents": -5000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+     81|     ["a non-numeric string", "100" as unknown as number],
+     82|   ])("2.1 rejects cashPrice = %s with INVALID_CASH_PRICE", (_label, ca…
+     83|     expect(calculateCpp({ ...VALID, cashPrice })).toEqual({ ok: false,…
+       |                                                   ^
+     84|   });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = negative with INVALID_CASH_PRICE
+AssertionError: expected { ok: true, netCashCents: -5100, …(1) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": -0.17,
++   "netCashCents": -5100,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+     81|     ["a non-numeric string", "100" as unknown as number],
+     82|   ])("2.1 rejects cashPrice = %s with INVALID_CASH_PRICE", (_label, ca…
+     83|     expect(calculateCpp({ ...VALID, cashPrice })).toEqual({ ok: false,…
+       |                                                   ^
+     84|   });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = NaN with INVALID_CASH_PRICE
+AssertionError: expected { ok: true, netCashCents: NaN, …(1) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": NaN,
++   "netCashCents": NaN,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+     81|     ["a non-numeric string", "100" as unknown as number],
+     82|   ])("2.1 rejects cashPrice = %s with INVALID_CASH_PRICE", (_label, ca…
+     83|     expect(calculateCpp({ ...VALID, cashPrice })).toEqual({ ok: false,…
+       |                                                   ^
+     84|   });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = Infinity with INVALID_CASH_PRICE
+AssertionError: expected { ok: true, …(2) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": Infinity,
++   "netCashCents": Infinity,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+     81|     ["a non-numeric string", "100" as unknown as number],
+     82|   ])("2.1 rejects cashPrice = %s with INVALID_CASH_PRICE", (_label, ca…
+     83|     expect(calculateCpp({ ...VALID, cashPrice })).toEqual({ ok: false,…
+       |                                                   ^
+     84|   });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = -Infinity with INVALID_CASH_PRICE
+AssertionError: expected { ok: true, …(2) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": -Infinity,
++   "netCashCents": -Infinity,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+     81|     ["a non-numeric string", "100" as unknown as number],
+     82|   ])("2.1 rejects cashPrice = %s with INVALID_CASH_PRICE", (_label, ca…
+     83|     expect(calculateCpp({ ...VALID, cashPrice })).toEqual({ ok: false,…
+       |                                                   ^
+     84|   });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = over the $1,000,000 cap with INVALID_CASH_PRICE
+AssertionError: expected { ok: true, …(2) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": 3333.17,
++   "netCashCents": 99995001,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+     81|     ["a non-numeric string", "100" as unknown as number],
+     82|   ])("2.1 rejects cashPrice = %s with INVALID_CASH_PRICE", (_label, ca…
+     83|     expect(calculateCpp({ ...VALID, cashPrice })).toEqual({ ok: false,…
+       |                                                   ^
+     84|   });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = a non-numeric string with INVALID_CASH_PRICE
+AssertionError: expected { ok: true, netCashCents: 5000, …(1) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": 0.17,
++   "netCashCents": 5000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:83:51
+     81|     ["a non-numeric string", "100" as unknown as number],
+     82|   ])("2.1 rejects cashPrice = %s with INVALID_CASH_PRICE", (_label, ca…
+     83|     expect(calculateCpp({ ...VALID, cashPrice })).toEqual({ ok: false,…
+       |                                                   ^
+     84|   });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = negative with INVALID_FEES
+AssertionError: expected { ok: true, netCashCents: 50001, …(1) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_FEES",
+-   "ok": false,
++   "cpp": 1.67,
++   "netCashCents": 50001,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+     91|     ["a non-numeric string", "5" as unknown as number],
+     92|   ])("2.2 rejects taxesFees = %s with INVALID_FEES", (_label, taxesFee…
+     93|     expect(calculateCpp({ ...VALID, taxesFees })).toEqual({ ok: false,…
+       |                                                   ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = NaN with INVALID_FEES
+AssertionError: expected { ok: true, netCashCents: NaN, …(1) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_FEES",
+-   "ok": false,
++   "cpp": NaN,
++   "netCashCents": NaN,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+     91|     ["a non-numeric string", "5" as unknown as number],
+     92|   ])("2.2 rejects taxesFees = %s with INVALID_FEES", (_label, taxesFee…
+     93|     expect(calculateCpp({ ...VALID, taxesFees })).toEqual({ ok: false,…
+       |                                                   ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = Infinity with INVALID_FEES
+AssertionError: expected { ok: true, …(2) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_FEES",
+-   "ok": false,
++   "cpp": -Infinity,
++   "netCashCents": -Infinity,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+     91|     ["a non-numeric string", "5" as unknown as number],
+     92|   ])("2.2 rejects taxesFees = %s with INVALID_FEES", (_label, taxesFee…
+     93|     expect(calculateCpp({ ...VALID, taxesFees })).toEqual({ ok: false,…
+       |                                                   ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = over the $1,000,000 cap with INVALID_FEES
+AssertionError: expected { ok: true, …(2) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_FEES",
+-   "ok": false,
++   "cpp": -3331.67,
++   "netCashCents": -99950001,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+     91|     ["a non-numeric string", "5" as unknown as number],
+     92|   ])("2.2 rejects taxesFees = %s with INVALID_FEES", (_label, taxesFee…
+     93|     expect(calculateCpp({ ...VALID, taxesFees })).toEqual({ ok: false,…
+       |                                                   ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = a non-numeric string with INVALID_FEES
+AssertionError: expected { ok: true, netCashCents: 49500, …(1) } to deeply equal { ok: false, error: 'INVALID_FEES' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_FEES",
+-   "ok": false,
++   "cpp": 1.65,
++   "netCashCents": 49500,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:93:51
+     91|     ["a non-numeric string", "5" as unknown as number],
+     92|   ])("2.2 rejects taxesFees = %s with INVALID_FEES", (_label, taxesFee…
+     93|     expect(calculateCpp({ ...VALID, taxesFees })).toEqual({ ok: false,…
+       |                                                   ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = 0 with INVALID_POINTS
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_POINTS",
+-   "ok": false,
++   "cpp": Infinity,
++   "netCashCents": 45000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+    103|     ["a non-numeric string", "100" as unknown as number],
+    104|   ])("2.3 rejects pointsRequired = %s with INVALID_POINTS", (_label, p…
+    105|     expect(calculateCpp({ ...VALID, pointsRequired })).toEqual({ ok: f…
+       |                                                        ^
+    106|   });
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = negative with INVALID_POINTS
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_POINTS",
+-   "ok": false,
++   "cpp": -45000,
++   "netCashCents": 45000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+    103|     ["a non-numeric string", "100" as unknown as number],
+    104|   ])("2.3 rejects pointsRequired = %s with INVALID_POINTS", (_label, p…
+    105|     expect(calculateCpp({ ...VALID, pointsRequired })).toEqual({ ok: f…
+       |                                                        ^
+    106|   });
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a fraction (1.5) with INVALID_POINTS
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_POINTS",
+-   "ok": false,
++   "cpp": 30000,
++   "netCashCents": 45000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+    103|     ["a non-numeric string", "100" as unknown as number],
+    104|   ])("2.3 rejects pointsRequired = %s with INVALID_POINTS", (_label, p…
+    105|     expect(calculateCpp({ ...VALID, pointsRequired })).toEqual({ ok: f…
+       |                                                        ^
+    106|   });
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = NaN with INVALID_POINTS
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_POINTS",
+-   "ok": false,
++   "cpp": NaN,
++   "netCashCents": 45000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+    103|     ["a non-numeric string", "100" as unknown as number],
+    104|   ])("2.3 rejects pointsRequired = %s with INVALID_POINTS", (_label, p…
+    105|     expect(calculateCpp({ ...VALID, pointsRequired })).toEqual({ ok: f…
+       |                                                        ^
+    106|   });
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = Infinity with INVALID_POINTS
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = over the 10,000,000 cap with INVALID_POINTS
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_POINTS",
+-   "ok": false,
++   "cpp": 0,
++   "netCashCents": 45000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+    103|     ["a non-numeric string", "100" as unknown as number],
+    104|   ])("2.3 rejects pointsRequired = %s with INVALID_POINTS", (_label, p…
+    105|     expect(calculateCpp({ ...VALID, pointsRequired })).toEqual({ ok: f…
+       |                                                        ^
+    106|   });
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a non-numeric string with INVALID_POINTS
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_POINTS",
+-   "ok": false,
++   "cpp": 450,
++   "netCashCents": 45000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:105:56
+    103|     ["a non-numeric string", "100" as unknown as number],
+    104|   ])("2.3 rejects pointsRequired = %s with INVALID_POINTS", (_label, p…
+    105|     expect(calculateCpp({ ...VALID, pointsRequired })).toEqual({ ok: f…
+       |                                                        ^
+    106|   });
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.4 rejects fees equal to the cash price with FEES_EXCEED_CASH
+AssertionError: expected { ok: true, netCashCents: +0, cpp: +0 } to deeply equal { Object (ok, error) }
+
+- Expected
++ Received
+
+  {
+-   "error": "FEES_EXCEED_CASH",
+-   "ok": false,
++   "cpp": 0,
++   "netCashCents": 0,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:109:84
+    107|
+    108|   it("2.4 rejects fees equal to the cash price with FEES_EXCEED_CASH",…
+    109|     expect(calculateCpp({ cashPrice: 100, taxesFees: 100, pointsRequir…
+       |                                                                                    ^
+    110|       ok: false,
+    111|       error: "FEES_EXCEED_CASH",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.5 rejects fees greater than the cash price with FEES_EXCEED_CASH
+AssertionError: expected { ok: true, netCashCents: -1, cpp: -0 } to deeply equal { Object (ok, error) }
+
+- Expected
++ Received
+
+  {
+-   "error": "FEES_EXCEED_CASH",
+-   "ok": false,
++   "cpp": -0,
++   "netCashCents": -1,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:116:87
+    114|
+    115|   it("2.5 rejects fees greater than the cash price with FEES_EXCEED_CA…
+    116|     expect(calculateCpp({ cashPrice: 100, taxesFees: 100.01, pointsReq…
+       |                                                                                       ^
+    117|       ok: false,
+    118|       error: "FEES_EXCEED_CASH",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.6 compares cash and fees in cents (99.999 rounds to 10000 cents = cash)
+AssertionError: expected { ok: true, netCashCents: +0, cpp: +0 } to deeply equal { Object (ok, error) }
+
+- Expected
++ Received
+
+  {
+-   "error": "FEES_EXCEED_CASH",
+-   "ok": false,
++   "cpp": 0,
++   "netCashCents": 0,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:123:87
+    121|
+    122|   it("2.6 compares cash and fees in cents (99.999 rounds to 10000 cent…
+    123|     expect(calculateCpp({ cashPrice: 100, taxesFees: 99.999, pointsReq…
+       |                                                                                       ^
+    124|       ok: false,
+    125|       error: "FEES_EXCEED_CASH",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.7 reports the cash price error first when several fields are invalid
+AssertionError: expected { ok: true, netCashCents: 100, …(1) } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_CASH_PRICE",
+-   "ok": false,
++   "cpp": Infinity,
++   "netCashCents": 100,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:130:78
+    128|
+    129|   it("2.7 reports the cash price error first when several fields are i…
+    130|     expect(calculateCpp({ cashPrice: 0, taxesFees: -1, pointsRequired:…
+       |                                                                              ^
+    131|       ok: false,
+    132|       error: "INVALID_CASH_PRICE",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/23]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.8 checks each field before comparing fees to cash
+AssertionError: expected { Object (ok, netCashCents, ...) } to deeply equal { ok: false, error: 'INVALID_POINTS' }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_POINTS",
+-   "ok": false,
++   "cpp": -Infinity,
++   "netCashCents": -10000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:137:81
+    135|
+    136|   it("2.8 checks each field before comparing fees to cash", () => {
+    137|     expect(calculateCpp({ cashPrice: 100, taxesFees: 200, pointsRequir…
+       |                                                                                 ^
+    138|       ok: false,
+    139|       error: "INVALID_POINTS",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/23]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  25 failed | 50 passed (75)
+   Start at  21:44:36
+   Duration  626ms (tests 36%, import 31%, transform 20%, worker 13%)
+
+
+## npm run typecheck (exit 0)
+
+> cardwise@0.1.0 typecheck
+> tsc --noEmit
+
