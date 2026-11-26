@@ -1,3 +1,5 @@
+> **Superseded (2026-11-25):** this was the original draft. The current plan and rubric tracking are in [`docs/project3/MASTER_PLAN.md`](project3/MASTER_PLAN.md) and [`docs/project3/RUBRIC_TRACKER.md`](project3/RUBRIC_TRACKER.md). It is kept unchanged below for history.
+
 # Implementation plan — draft for Claude Code to validate against original rubrics
 
 ## Phase 0 — immediately

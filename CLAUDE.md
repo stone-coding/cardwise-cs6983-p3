@@ -6,12 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CardWise is a Credit Card Rewards Optimizer for Northeastern CS6983. One repository serves three graded assignments: **HW4** (Claude Code workflow & TDD, due 2026-11-26 02:59), **HW5** (skills & MCP, due 2026-12-07 02:59), and **Project 3** (production app, due 2026-12-16 02:59). Requirement checklists and rubrics are in `docs/assignments/`.
 
-**Current focus: HW4.** Only the **Rewards Optimizer** module is in scope right now: given a purchase amount, a spending category, and the cards in the user's wallet, estimate the rewards for each card and recommend the best one. Do not start other modules, auth, or the database until the owner asks.
+**Current phase: Project 3, Sprint 1 planning.** HW4 is finished: Haomiao built the pure Rewards Optimizer alone, before the pair formed. Project 3 is a pair project (Haomiao Shi + Togzhan Usseiin), pending professor confirmation. The plan, backlog (GitHub issues #1–#31), and rubric tracker are in `docs/project3/`. Work only on issues the team has accepted, one branch or worktree per issue (`feat/<issue#>-<slug>`), and follow the workflow in `docs/project3/MASTER_PLAN.md` §6. Sprint dates and owners are **proposed** until recorded in `docs/sprints/sprint-1/PLANNING.md`.
 
-Frozen scope and product context (imported):
+Never create, prefill, or backdate standups, retrospectives, reviews, or reflections. Those are human-authored.
+
+Frozen scope, product context, and Definition of Done (imported):
 
 @docs/MVP_SCOPE.md
 @docs/PROJECT_PROPOSAL.md
+@docs/project3/DEFINITION_OF_DONE.md
 
 ## Commands
 

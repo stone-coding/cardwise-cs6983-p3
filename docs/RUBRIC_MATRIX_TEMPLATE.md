@@ -1,3 +1,5 @@
+> **Superseded (2026-11-25):** this was the original draft. The current plan and rubric tracking are in [`docs/project3/MASTER_PLAN.md`](project3/MASTER_PLAN.md) and [`docs/project3/RUBRIC_TRACKER.md`](project3/RUBRIC_TRACKER.md). It is kept unchanged below for history.
+
 # Rubric Traceability Matrix (fill after checking official Canvas)
 
 | Source | Requirement | Points/Weight | Planned implementation | Evidence path/URL | Status | Owner | Due |
