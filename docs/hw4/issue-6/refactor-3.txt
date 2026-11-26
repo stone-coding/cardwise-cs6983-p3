@@ -1,0 +1,93 @@
+# Issue #6 — Cycle 3 REFACTOR evidence
+# Captured: 2026-11-25 22:02 on branch feat/6-cpp-calculator, node v22.20.0, before committing the refactor
+# Expected: all 94 tests still pass after extracting verdictFor; no test changes; typecheck clean.
+
+## npm test (exit 0)
+
+> cardwise@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+
+ Test Files  3 passed (3)
+      Tests  94 passed (94)
+   Start at  22:02:32
+   Duration  445ms (transform 47%, import 27%, tests 16%, worker 9%)
+
+
+## npx vitest run src/lib/cpp --reporter=verbose
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.1 computes CPP as (cash − fees) / points × 100 3ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.2 allows zero taxes/fees 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.3 rounds CPP down to 2 decimals (333.33 hundredths → 3.33) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.4 rounds CPP up to 2 decimals (666.67 hundredths → 6.67) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.5 rounds an exact half up (12.5 hundredths → 0.13) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.6 subtracts fees in integer cents, not float dollars 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.7 rounds a CPP below 0.005 to 0 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.8 keeps maximum values as exact safe integers 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0 with INVALID_CASH_PRICE 1ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = negative with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = NaN with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = Infinity with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = -Infinity with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = over the $1,000,000 cap with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0.004 (rounds to 0 cents) with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = a non-numeric string with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = negative with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = NaN with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = Infinity with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = over the $1,000,000 cap with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = a non-numeric string with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = 0 with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = negative with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a fraction (1.5) with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = NaN with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = Infinity with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = over the 10,000,000 cap with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a non-numeric string with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.4 rejects fees equal to the cash price with FEES_EXCEED_CASH 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.5 rejects fees greater than the cash price with FEES_EXCEED_CASH 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.6 compares cash and fees in cents (99.999 rounds to 10000 cents = cash) 1ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.7 reports the cash price error first when several fields are invalid 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.8 checks each field before comparing fees to cash 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.9 accepts the 10,000,000 points maximum 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.10 accepts a net cash value of 1 cent 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.11 accepts fees that round to 0 cents 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.1 omits the verdict when no baseline is given 1ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.2 says POINTS_BETTER when CPP beats the baseline 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.3 says CASH_BETTER when CPP is below the baseline 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.4 says EQUAL when CPP matches the baseline exactly 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.5 compares at 2 decimals: cpp 3.33 vs baseline 3.334 → EQUAL 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.6 compares at 2 decimals: cpp 3.33 vs baseline 3.326 → EQUAL 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.7 compares at 2 decimals: cpp 3.33 vs baseline 3.336 → CASH_BETTER 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.8 compares at 2 decimals: cpp 3.33 vs baseline 3.324 → POINTS_BETTER 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.9 accepts the maximum baseline of 100 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.10 accepts the minimum baseline of 0.01 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.11 says CASH_BETTER when CPP rounds to 0 and the baseline is 0.01 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = 0 with INVALID_BASELINE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = negative with INVALID_BASELINE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = NaN with INVALID_BASELINE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = Infinity with INVALID_BASELINE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = over the 100 cap with INVALID_BASELINE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = 0.004 (rounds to 0.00) with INVALID_BASELINE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = a non-numeric string with INVALID_BASELINE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.13 reports invalid points before an invalid baseline 0ms
+
+ Test Files  1 passed (1)
+      Tests  55 passed (55)
+   Start at  22:02:35
+   Duration  481ms (import 39%, tests 23%, transform 23%, worker 15%)
+
+
+## npm run typecheck (exit 0)
+
+> cardwise@0.1.0 typecheck
+> tsc --noEmit
+

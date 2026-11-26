@@ -1,0 +1,99 @@
+ ▐▛███▛█   Claude Code v2.1.332
+▝▜██████▀  Opus 5.5 · Claude Enterprise
+ ▝▝   ▝▝   C:\dev\cardwise-6
+
+
+> Explore with Glob/Grep/Read only, don't edit anything: how does               
+  src/lib/rewards parse amounts, convert to cents (toCents) and return errors   
+  as result objects? I'm going to implement issue #6: a pure                    
+  calculateCpp({cashPrice, taxesFees, pointsRequired, baselineCpp?}). CPP =     
+  (cash − fees) / points × 100. What can I reuse?                               
+
+  Searched for 2 patterns, read 4 files (ctrl+o to expand)
+
+● Here's how amount handling works in src/lib/rewards today and what carries
+  over to calculateCpp. I didn't edit anything.
+
+  Current pipeline: string → dollars → cents → result
+
+  1. Parsing (src/lib/rewards/parse-amount.ts:2)
+  parseAmount(input: string): number | null
+  - It trims the input, then requires ^\d+(\.\d{1,2})?$. That rejects exponents,
+    hex, signs, commas and more than 2 decimal places.
+  - It returns dollars as a number, or null.
+  - It does not check bounds. "0" parses to 0.
+
+  2. Cents conversion and bounds (src/lib/rewards/optimizer.ts:11-18)
+  export const MAX_AMOUNT_DOLLARS = 1_000_000;
+  toCents(amount: number): number | null   // null unless finite, ≤ max, and 
+  rounds to > 0 cents
+  - It uses Math.round(amount * 100), which handles float noise like 19.99*100.
+  - It rejects NaN, ±Infinity, negatives, 0, and anything over $1M.
+
+  3. Errors as result objects (types.ts:25-29, optimizer.ts:47-50)
+  - Errors are a string-literal union, OptimizerError = "INVALID_AMOUNT" | ....
+  - The result type is a discriminated union: { ok: true; ... } | { ok: false; 
+    error: OptimizerError }.
+  - Validation is a chain of early returns, one error code per failure.
+  - The UI (src/app/rewards-optimizer.tsx:10,38-43) maps codes to messages. If
+    parseAmount returns null, the UI builds the INVALID_AMOUNT result itself, so
+    a string that fails to parse and a number out of range show the same error.
+
+  What you can reuse for calculateCpp
+
+  Piece: parseAmount
+  Reuse?: ✅ for cashPrice and taxesFees (UI side)
+  Notes: Same strict decimal rules.
+  ────────────────────────────────────────
+  Piece: toCents
+  Reuse?: ✅ for cashPrice
+  Notes: ⚠️ Not for taxesFees. It rejects 0, and $0 fees is a valid input. You
+    need a variant that allows zero, or a toCents(fees + 0.01)-style hack
+    (don't do that).
+  ────────────────────────────────────────
+  Piece: MAX_AMOUNT_DOLLARS
+  Reuse?: ✅
+  Notes: It's a sensible upper bound for cash and fees.
+  ────────────────────────────────────────
+  Piece: Result-union pattern
+  Reuse?: ✅ copy the shape
+  Notes: Add CppInput, CppError, CppResult types. Put them in their own
+    types.ts or in a cpp/ folder.
+  ────────────────────────────────────────
+  Piece: rateFor, isSpendCategory, ranking
+  Reuse?: ❌
+  Notes: Specific to the optimizer.
+
+  Nothing exists yet for the points input. Points should be a positive integer
+  (and probably capped, e.g. ≤ 10,000,000). parseAmount accepts decimals, so
+  you'd need a small parsePoints or /^\d+$/ check.
+
+  Things to decide before writing the RED tests
+
+  1. Where toCents lives. It's exported from optimizer.ts, so importing it into
+     a CPP module couples two of the five modules. A clean option is a later
+     REFACTOR commit that moves toCents, MAX_AMOUNT_DOLLARS and a new
+     zero-allowing variant into something like src/lib/money.ts. That also fits
+     the CLAUDE.md conventions. To keep issue #6 small, you could import from
+     optimizer.ts for now and move it afterwards.
+  2. The formula shrinks once you work in cents. (cash − fees) / points × 100 in
+     dollars is the same as (cashCents − feesCents) / points. That keeps the
+     integer-cents rule, and the only float is the final ratio.
+  3. CPP isn't an integer cent value, e.g. 1.37¢/pt. So you can't use the
+     exact-integer assertions the optimizer tests rely on. Pick one rounding
+     rule (e.g. round to 2 decimals) and assert exact values for it. Or return
+     the unrounded value plus a rounded display field.
+  4. Fees ≥ cash price. If net cash is ≤ 0, you need a code such as
+     FEES_EXCEED_CASH. MVP_SCOPE requires rejecting invalid input.
+  5. baselineCpp? validation. It's a decimal CPP, not dollars, so neither
+     parseAmount's meaning nor toCents fits. It needs its own finite, > 0,
+     upper-bounded check (e.g. ≤ 100), plus an INVALID_BASELINE code. The
+     comparison result can follow the optimizer's explicit-flag pattern:
+     something like { cpp, baselineCpp, isAboveBaseline, differenceCpp }, with a
+     defined result when the two are equal.
+
+  For a starting list of edge-case tests, use the CLAUDE.md list (0, negative,
+  NaN, Infinity, over the cap, non-numeric strings) for each of the three
+  inputs, plus non-integer points, fees = 0, fees = cash, and fees > cash.
+
+✻ Cogitated for 28s · done 21:19

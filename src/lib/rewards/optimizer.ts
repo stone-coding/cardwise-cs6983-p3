@@ -1,3 +1,4 @@
+import { toCents } from "@/lib/money";
 import { CARD_CATALOG } from "./catalog";
 import {
   SPEND_CATEGORIES,
@@ -7,15 +8,6 @@ import {
   type OptimizerResult,
   type SpendCategory,
 } from "./types";
-
-export const MAX_AMOUNT_DOLLARS = 1_000_000;
-
-/** Converts dollars to whole cents, or returns null if the amount is outside (0, MAX_AMOUNT_DOLLARS]. */
-export function toCents(amount: number): number | null {
-  if (!Number.isFinite(amount) || amount > MAX_AMOUNT_DOLLARS) return null;
-  const cents = Math.round(amount * 100);
-  return cents > 0 ? cents : null;
-}
 
 export function rateFor(card: CardProduct, category: SpendCategory): number {
   return card.rates[category] ?? card.rates.other;

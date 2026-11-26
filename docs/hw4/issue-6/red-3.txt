@@ -1,0 +1,373 @@
+# Issue #6 — Cycle 3 RED evidence
+# Captured: 2026-11-25 21:59 on branch feat/6-cpp-calculator, node v22.20.0
+# Expected: 17 baseline tests fail (calculate-cpp.ts ignores baselineCpp); 3.1 and 3.13 pass already; all earlier tests pass; typecheck clean.
+
+## npx vitest run src/lib/cpp --reporter=verbose (per-test summary)
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.1 computes CPP as (cash − fees) / points × 100 3ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.2 allows zero taxes/fees 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.3 rounds CPP down to 2 decimals (333.33 hundredths → 3.33) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.4 rounds CPP up to 2 decimals (666.67 hundredths → 6.67) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.5 rounds an exact half up (12.5 hundredths → 0.13) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.6 subtracts fees in integer cents, not float dollars 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.7 rounds a CPP below 0.005 to 0 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.8 keeps maximum values as exact safe integers 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0 with INVALID_CASH_PRICE 1ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = negative with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = NaN with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = Infinity with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = -Infinity with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = over the $1,000,000 cap with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0.004 (rounds to 0 cents) with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = a non-numeric string with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = negative with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = NaN with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = Infinity with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = over the $1,000,000 cap with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = a non-numeric string with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = 0 with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = negative with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a fraction (1.5) with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = NaN with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = Infinity with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = over the 10,000,000 cap with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a non-numeric string with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.4 rejects fees equal to the cash price with FEES_EXCEED_CASH 1ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.5 rejects fees greater than the cash price with FEES_EXCEED_CASH 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.6 compares cash and fees in cents (99.999 rounds to 10000 cents = cash) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.7 reports the cash price error first when several fields are invalid 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.8 checks each field before comparing fees to cash 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.9 accepts the 10,000,000 points maximum 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.10 accepts a net cash value of 1 cent 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.11 accepts fees that round to 0 cents 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.1 omits the verdict when no baseline is given 1ms
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.2 says POINTS_BETTER when CPP beats the baseline 9ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.3 says CASH_BETTER when CPP is below the baseline 2ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.4 says EQUAL when CPP matches the baseline exactly 1ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.5 compares at 2 decimals: cpp 3.33 vs baseline 3.334 → EQUAL 1ms
+   → expected { ok: true, netCashCents: 10000, …(1) } to deeply equal { ok: true, netCashCents: 10000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.6 compares at 2 decimals: cpp 3.33 vs baseline 3.326 → EQUAL 1ms
+   → expected { ok: true, netCashCents: 10000, …(1) } to deeply equal { ok: true, netCashCents: 10000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.7 compares at 2 decimals: cpp 3.33 vs baseline 3.336 → CASH_BETTER 1ms
+   → expected { ok: true, netCashCents: 10000, …(1) } to deeply equal { ok: true, netCashCents: 10000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.8 compares at 2 decimals: cpp 3.33 vs baseline 3.324 → POINTS_BETTER 0ms
+   → expected { ok: true, netCashCents: 10000, …(1) } to deeply equal { ok: true, netCashCents: 10000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.9 accepts the maximum baseline of 100 1ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.10 accepts the minimum baseline of 0.01 1ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.11 says CASH_BETTER when CPP rounds to 0 and the baseline is 0.01 1ms
+   → expected { Object (ok, netCashCents, ...) } to deeply equal { ok: true, netCashCents: 100, …(2) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = 0 with INVALID_BASELINE 1ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = negative with INVALID_BASELINE 1ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = NaN with INVALID_BASELINE 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = Infinity with INVALID_BASELINE 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = over the 100 cap with INVALID_BASELINE 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = 0.004 (rounds to 0.00) with INVALID_BASELINE 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+ × src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = a non-numeric string with INVALID_BASELINE 0ms
+   → expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.13 reports invalid points before an invalid baseline 0ms
+ ❯ src/lib/cpp/calculate-cpp.test.ts:184:59
+ ❯ src/lib/cpp/calculate-cpp.test.ts:193:57
+ ❯ src/lib/cpp/calculate-cpp.test.ts:202:59
+ ❯ src/lib/cpp/calculate-cpp.test.ts:216:54
+ ❯ src/lib/cpp/calculate-cpp.test.ts:216:54
+ ❯ src/lib/cpp/calculate-cpp.test.ts:216:54
+ ❯ src/lib/cpp/calculate-cpp.test.ts:225:59
+ ❯ src/lib/cpp/calculate-cpp.test.ts:234:60
+ ❯ src/lib/cpp/calculate-cpp.test.ts:243:60
+ ❯ src/lib/cpp/calculate-cpp.test.ts:260:54
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  17 failed | 38 passed (55)
+
+## npm test (exit 1, full output)
+
+> cardwise@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts (55 tests | 17 failed) 37ms
+   ❯ calculateCpp — baseline verdict (cycle 3) (19)
+     × 3.2 says POINTS_BETTER when CPP beats the baseline 10ms
+     × 3.3 says CASH_BETTER when CPP is below the baseline 2ms
+     × 3.4 says EQUAL when CPP matches the baseline exactly 2ms
+     × 3.5 compares at 2 decimals: cpp 3.33 vs baseline 3.334 → EQUAL 1ms
+     × 3.6 compares at 2 decimals: cpp 3.33 vs baseline 3.326 → EQUAL 1ms
+     × 3.7 compares at 2 decimals: cpp 3.33 vs baseline 3.336 → CASH_BETTER 1ms
+     × 3.8 compares at 2 decimals: cpp 3.33 vs baseline 3.324 → POINTS_BETTER 1ms
+     × 3.9 accepts the maximum baseline of 100 1ms
+     × 3.10 accepts the minimum baseline of 0.01 1ms
+     × 3.11 says CASH_BETTER when CPP rounds to 0 and the baseline is 0.01 1ms
+     × 3.12 rejects baselineCpp = 0 with INVALID_BASELINE 1ms
+     × 3.12 rejects baselineCpp = negative with INVALID_BASELINE 1ms
+     × 3.12 rejects baselineCpp = NaN with INVALID_BASELINE 0ms
+     × 3.12 rejects baselineCpp = Infinity with INVALID_BASELINE 0ms
+     × 3.12 rejects baselineCpp = over the 100 cap with INVALID_BASELINE 0ms
+     × 3.12 rejects baselineCpp = 0.004 (rounds to 0.00) with INVALID_BASELINE 0ms
+     × 3.12 rejects baselineCpp = a non-numeric string with INVALID_BASELINE 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.2 says POINTS_BETTER when CPP beats the baseline
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 1.5,
+    "netCashCents": 45000,
+    "ok": true,
+-   "verdict": "POINTS_BETTER",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:184:59
+    182|
+    183|   it("3.2 says POINTS_BETTER when CPP beats the baseline", () => {
+    184|     expect(calculateCpp({ ...BASE_A, baselineCpp: 1.2 })).toEqual({
+       |                                                           ^
+    185|       ok: true,
+    186|       netCashCents: 45000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.3 says CASH_BETTER when CPP is below the baseline
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 1.5,
+    "netCashCents": 45000,
+    "ok": true,
+-   "verdict": "CASH_BETTER",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:193:57
+    191|
+    192|   it("3.3 says CASH_BETTER when CPP is below the baseline", () => {
+    193|     expect(calculateCpp({ ...BASE_A, baselineCpp: 2 })).toEqual({
+       |                                                         ^
+    194|       ok: true,
+    195|       netCashCents: 45000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.4 says EQUAL when CPP matches the baseline exactly
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 1.5,
+    "netCashCents": 45000,
+    "ok": true,
+-   "verdict": "EQUAL",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:202:59
+    200|
+    201|   it("3.4 says EQUAL when CPP matches the baseline exactly", () => {
+    202|     expect(calculateCpp({ ...BASE_A, baselineCpp: 1.5 })).toEqual({
+       |                                                           ^
+    203|       ok: true,
+    204|       netCashCents: 45000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.5 compares at 2 decimals: cpp 3.33 vs baseline 3.334 → EQUAL
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.6 compares at 2 decimals: cpp 3.33 vs baseline 3.326 → EQUAL
+AssertionError: expected { ok: true, netCashCents: 10000, …(1) } to deeply equal { ok: true, netCashCents: 10000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 3.33,
+    "netCashCents": 10000,
+    "ok": true,
+-   "verdict": "EQUAL",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:216:54
+    214|     ["3.8", 3.324, "POINTS_BETTER"],
+    215|   ])("%s compares at 2 decimals: cpp 3.33 vs baseline %s → %s", (_id, …
+    216|     expect(calculateCpp({ ...BASE_B, baselineCpp })).toEqual({
+       |                                                      ^
+    217|       ok: true,
+    218|       netCashCents: 10000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.7 compares at 2 decimals: cpp 3.33 vs baseline 3.336 → CASH_BETTER
+AssertionError: expected { ok: true, netCashCents: 10000, …(1) } to deeply equal { ok: true, netCashCents: 10000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 3.33,
+    "netCashCents": 10000,
+    "ok": true,
+-   "verdict": "CASH_BETTER",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:216:54
+    214|     ["3.8", 3.324, "POINTS_BETTER"],
+    215|   ])("%s compares at 2 decimals: cpp 3.33 vs baseline %s → %s", (_id, …
+    216|     expect(calculateCpp({ ...BASE_B, baselineCpp })).toEqual({
+       |                                                      ^
+    217|       ok: true,
+    218|       netCashCents: 10000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.8 compares at 2 decimals: cpp 3.33 vs baseline 3.324 → POINTS_BETTER
+AssertionError: expected { ok: true, netCashCents: 10000, …(1) } to deeply equal { ok: true, netCashCents: 10000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 3.33,
+    "netCashCents": 10000,
+    "ok": true,
+-   "verdict": "POINTS_BETTER",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:216:54
+    214|     ["3.8", 3.324, "POINTS_BETTER"],
+    215|   ])("%s compares at 2 decimals: cpp 3.33 vs baseline %s → %s", (_id, …
+    216|     expect(calculateCpp({ ...BASE_B, baselineCpp })).toEqual({
+       |                                                      ^
+    217|       ok: true,
+    218|       netCashCents: 10000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.9 accepts the maximum baseline of 100
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 1.5,
+    "netCashCents": 45000,
+    "ok": true,
+-   "verdict": "CASH_BETTER",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:225:59
+    223|
+    224|   it("3.9 accepts the maximum baseline of 100", () => {
+    225|     expect(calculateCpp({ ...BASE_A, baselineCpp: 100 })).toEqual({
+       |                                                           ^
+    226|       ok: true,
+    227|       netCashCents: 45000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.10 accepts the minimum baseline of 0.01
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { ok: true, netCashCents: 45000, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 1.5,
+    "netCashCents": 45000,
+    "ok": true,
+-   "verdict": "POINTS_BETTER",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:234:60
+    232|
+    233|   it("3.10 accepts the minimum baseline of 0.01", () => {
+    234|     expect(calculateCpp({ ...BASE_A, baselineCpp: 0.01 })).toEqual({
+       |                                                            ^
+    235|       ok: true,
+    236|       netCashCents: 45000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.11 says CASH_BETTER when CPP rounds to 0 and the baseline is 0.01
+AssertionError: expected { Object (ok, netCashCents, ...) } to deeply equal { ok: true, netCashCents: 100, …(2) }
+
+- Expected
++ Received
+
+  {
+    "cpp": 0,
+    "netCashCents": 100,
+    "ok": true,
+-   "verdict": "CASH_BETTER",
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:243:60
+    241|
+    242|   it("3.11 says CASH_BETTER when CPP rounds to 0 and the baseline is 0…
+    243|     expect(calculateCpp({ ...BASE_C, baselineCpp: 0.01 })).toEqual({
+       |                                                            ^
+    244|       ok: true,
+    245|       netCashCents: 100,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = 0 with INVALID_BASELINE
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = negative with INVALID_BASELINE
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = NaN with INVALID_BASELINE
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = Infinity with INVALID_BASELINE
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = over the 100 cap with INVALID_BASELINE
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = 0.004 (rounds to 0.00) with INVALID_BASELINE
+ FAIL  src/lib/cpp/calculate-cpp.test.ts > calculateCpp — baseline verdict (cycle 3) > 3.12 rejects baselineCpp = a non-numeric string with INVALID_BASELINE
+AssertionError: expected { ok: true, netCashCents: 45000, …(1) } to deeply equal { Object (ok, error) }
+
+- Expected
++ Received
+
+  {
+-   "error": "INVALID_BASELINE",
+-   "ok": false,
++   "cpp": 1.5,
++   "netCashCents": 45000,
++   "ok": true,
+  }
+
+ ❯ src/lib/cpp/calculate-cpp.test.ts:260:54
+    258|     ["a non-numeric string", "1" as unknown as number],
+    259|   ])("3.12 rejects baselineCpp = %s with INVALID_BASELINE", (_label, b…
+    260|     expect(calculateCpp({ ...BASE_A, baselineCpp })).toEqual({ ok: fal…
+       |                                                      ^
+    261|   });
+    262|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  17 failed | 77 passed (94)
+   Start at  21:59:39
+   Duration  764ms (transform 46%, import 23%, tests 21%, worker 9%)
+
+
+## npm run typecheck (exit 0)
+
+> cardwise@0.1.0 typecheck
+> tsc --noEmit
+
