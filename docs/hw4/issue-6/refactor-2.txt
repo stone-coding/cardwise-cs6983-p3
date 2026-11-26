@@ -1,0 +1,115 @@
+# Issue #6 — Cycle 2 REFACTOR evidence
+# Commit: 496e341 refactor(money): move money helpers to src/lib/money.ts
+# Captured: 2026-11-25 21:56 on branch feat/6-cpp-calculator, node v22.20.0
+# Note: captured after the refactor commit was made, with HEAD at that commit and no tracked changes in the working tree.
+# Expected: all 75 tests still pass after moving money helpers to src/lib/money.ts; no test changes; typecheck clean.
+
+## npm test (exit 0)
+
+> cardwise@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+
+ Test Files  3 passed (3)
+      Tests  75 passed (75)
+   Start at  21:56:32
+   Duration  358ms (import 43%, tests 22%, transform 20%, worker 14%)
+
+
+## npx vitest run --reporter=verbose
+
+ RUN  v5.1.1 C:/dev/cardwise-6
+
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > parses "12" as 12 3ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > parses "12.5" as 12.5 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > parses "12.34" as 12.34 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > parses "  42.00 " as 42 1ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > parses "0.99" as 0.99 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "   " 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "abc" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "1e3" 1ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "-5" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "+5" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "12.345" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "0x10" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "1,000" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "12." 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects ".5" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "Infinity" 0ms
+ ✓ src/lib/rewards/parse-amount.test.ts > parseAmount (AC7) > rejects "NaN" 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.1 computes CPP as (cash − fees) / points × 100 3ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.2 allows zero taxes/fees 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.3 rounds CPP down to 2 decimals (333.33 hundredths → 3.33) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.4 rounds CPP up to 2 decimals (666.67 hundredths → 6.67) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.5 rounds an exact half up (12.5 hundredths → 0.13) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.6 subtracts fees in integer cents, not float dollars 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.7 rounds a CPP below 0.005 to 0 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — formula and rounding (cycle 1) > 1.8 keeps maximum values as exact safe integers 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0 with INVALID_CASH_PRICE 1ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = negative with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = NaN with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = Infinity with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = -Infinity with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = over the $1,000,000 cap with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = 0.004 (rounds to 0 cents) with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.1 rejects cashPrice = a non-numeric string with INVALID_CASH_PRICE 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = negative with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = NaN with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = Infinity with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = over the $1,000,000 cap with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.2 rejects taxesFees = a non-numeric string with INVALID_FEES 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = 0 with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = negative with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a fraction (1.5) with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = NaN with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = Infinity with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = over the 10,000,000 cap with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.3 rejects pointsRequired = a non-numeric string with INVALID_POINTS 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.4 rejects fees equal to the cash price with FEES_EXCEED_CASH 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.5 rejects fees greater than the cash price with FEES_EXCEED_CASH 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.6 compares cash and fees in cents (99.999 rounds to 10000 cents = cash) 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.7 reports the cash price error first when several fields are invalid 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.8 checks each field before comparing fees to cash 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.9 accepts the 10,000,000 points maximum 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.10 accepts a net cash value of 1 cent 0ms
+ ✓ src/lib/cpp/calculate-cpp.test.ts > calculateCpp — input validation (cycle 2) > 2.11 accepts fees that round to 0 cents 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — reward calculation (AC1) > computes each card's reward in integer cents from the category rate 16ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — reward calculation (AC1) > reports the rate used for each card 1ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — reward calculation (AC1) > handles cents in the amount without floating-point drift 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — reward calculation (AC1) > rounds half a cent up 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — ranking and recommendation (AC2) > recommends the card with the highest reward 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — ranking and recommendation (AC2) > ranks cards by reward descending, then by card name 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — ranking and recommendation (AC2) > produces the same ranking regardless of wallet order 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — ranking and recommendation (AC2) > only considers cards in the wallet 1ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — category fallback (AC3) > uses the card's 'other' rate when the category has no explicit rate 1ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is zero 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is negative 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is NaN 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is Infinity 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is above the $1,000,000 cap 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > rejects an amount that is less than half a cent 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — invalid amounts (AC4) > accepts exactly the $1,000,000 cap 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — wallet and category validation (AC5) > rejects an empty wallet 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — wallet and category validation (AC5) > rejects a wallet containing a card that is not in the catalog 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — wallet and category validation (AC5) > rejects a category outside the allowlist 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — ties and duplicates (AC6) > reports every card tied for the top reward 0ms
+ ✓ src/lib/rewards/optimizer.test.ts > optimizeRewards — ties and duplicates (AC6) > counts a card listed twice in the wallet only once 0ms
+
+ Test Files  3 passed (3)
+      Tests  75 passed (75)
+   Start at  21:56:35
+   Duration  530ms (import 38%, tests 24%, transform 23%, worker 14%)
+
+
+## npm run typecheck (exit 0)
+
+> cardwise@0.1.0 typecheck
+> tsc --noEmit
+
